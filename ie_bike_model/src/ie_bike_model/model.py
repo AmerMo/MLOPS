@@ -5,6 +5,8 @@ import os
 import re
 import datetime
 import statsmodels.api as sm
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
@@ -169,17 +171,17 @@ def train_and_persist():
     """
     train_X, train_y, test_X, test_y = prepare_train_data()
     ## Building RandomForestRegressor Model Using Best Parameters from GridSearch
-    rf = RandomForestRegressor(
+    rf_pipeline = Pipeline([('norm', MinMaxScaler()),('classify', RandomForestRegressor(
         max_depth=40,
         min_samples_leaf=1,
         min_samples_split=2,
         n_estimators=200,
         random_state=42,
-    )
-    rf.fit(train_X, train_y)
+    )),])
+    rf_pipeline.fit(train_X, train_y)
     folder_selected = folderSelect()
     filename = os.path.join(folder_selected, "model.joblib")
-    dump(rf, filename)
+    dump(rf_pipeline, filename)
 
 
 def predict(dict):
